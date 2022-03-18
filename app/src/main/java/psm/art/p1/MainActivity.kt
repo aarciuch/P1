@@ -11,6 +11,17 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Observer
+import androidx.work.*
+import androidx.work.Data.fromByteArray
+import java.lang.Exception
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +31,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var b1: Button
     private lateinit var b2: Button
+    private lateinit var b3: Button
+
+    private var page : String? = null
+
+
 
     var getResul1 = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
@@ -61,8 +77,36 @@ class MainActivity : AppCompatActivity() {
         b2.setOnClickListener {
             go2Act2WithParams()
         }
+
+        /********************************************************/
+        b3 = findViewById(R.id.b3)
+        b3.setOnClickListener {
+            page = getPage()
+            Log.i("ACTIVITY", page!!)
+        }
+
+
     }
 
+    private fun getPage(): String? {
+        val d1 = Data.Builder()
+        d1.putString("URL", "https://ktel.wat.edu.pl/")
+        var s = ""
+        val pageWorker:  WorkRequest =
+            OneTimeWorkRequestBuilder<GetPageWorker>()
+                .setInputData(d1.build())
+                .build()
+        val workManager: WorkManager = WorkManager.getInstance(applicationContext)
+            workManager.enqueue(pageWorker)
+
+        workManager.getWorkInfoByIdLiveData(pageWorker.id)
+            .observe(this, Observer {
+                if (it != null && it.state.isFinished) {
+                    s = it.outputData.getString("RESULT")!!
+                }
+            })
+        return s
+    }
 
 
     override fun onStart() {
@@ -120,4 +164,5 @@ class MainActivity : AppCompatActivity() {
     private fun go2Act2() {
         startActivity(Intent(applicationContext, MainActivity2::class.java))
     }
+
 }

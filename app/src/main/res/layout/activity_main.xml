@@ -31,4 +31,10 @@
         android:layout_height="wrap_content"
         android:text="Go2Act2WithParams"/>
 
+    <Button
+        android:id="@+id/b3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get page"/>
+
 </LinearLayout>
