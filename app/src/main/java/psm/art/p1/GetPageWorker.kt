@@ -22,65 +22,46 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
        val url = inputData.getString("URL")
 
        return try {
-           val result = uploadPage(url!!)
+           var resultString = uploadPage(url!!)
+           resultString += "\nLENGHT: " + resultString.length.toString()
+           var output: Data?
            Log.i(TAG, "doWork success")
-           val output : Data = workDataOf("RESULT" to result)
-           Result.success(output)
+           if (resultString.length <= 1024 * 4) {
+                output = workDataOf("RESULT" to resultString)
+               Result.success(output)
+           } else {
+               resultString = resultString.substring(0,1024 * 4 - 1) + "\nLENGHT: " + resultString.length.toString()
+
+               output = workDataOf("RESULT" to resultString)
+               Result.success(output)
+           }
        } catch (throwable : Throwable) {
-           Log.e(TAG, "doWork failure")
-           Result.failure()
+           Log.e(TAG, "${throwable.message!!}")
+           val output = workDataOf("RESULT" to "${throwable.message!!}")
+           Result.failure(output)
        }
     }
 
-    private fun uploadPage(url: String) : String {
+    private fun uploadPage(url: String): String {
         var s = ""
         Log.i(TAG, url)
         Log.i(TAG, "doWork start working")
-        //trustAllHosts()
         val url1 = URL(url)
-        with(url1.openConnection() as HttpsURLConnection) {
-            requestMethod = "GET"
-            inputStream.bufferedReader().use {
-                it.lines().forEach { line ->
-                    s+= line
-                    s+= '\n'
+        HttpsTrustManager().allowAllSSL()
+        try {
+            with(url1.openConnection() as HttpsURLConnection) {
+                requestMethod = "GET"
+                inputStream.bufferedReader().use {
+                    it.lines().forEach { line ->
+                        s+= line
+                        s+= '\n'
+                    }
                 }
             }
+        } catch (e : Throwable) {
+            Log.i(TAG, e.message!!)
+            s = e.message!!
         }
         return s
     }
-
-    private fun trustAllHosts() {
-        // Create a trust manager that does not validate certificate chains
-        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun getAcceptedIssuers(): Array<X509Certificate?>? {
-                return arrayOf()
-            }
-
-            @Throws(CertificateException::class)
-            override fun checkClientTrusted(
-                chain: Array<X509Certificate?>?,
-                authType: String?
-            ) {
-            }
-
-            @Throws(CertificateException::class)
-            override fun checkServerTrusted(
-                chain: Array<X509Certificate?>?,
-                authType: String?
-            ) {
-            }
-        })
-        try {
-            val sc = SSLContext.getInstance("TLS")
-            sc.init(null, trustAllCerts, SecureRandom())
-            HttpsURLConnection
-                .setDefaultSSLSocketFactory(sc.socketFactory)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-
-
 }
