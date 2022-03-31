@@ -11,6 +11,7 @@ import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import javax.net.ssl.*
+import javax.net.ssl.HttpsURLConnection
 
 
 class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
@@ -25,9 +26,10 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
            val result = uploadPage(url!!)
            Log.i(TAG, "doWork success")
            val output : Data = workDataOf("RESULT" to result)
+           Log.i(TAG, result)
            Result.success(output)
        } catch (throwable : Throwable) {
-           Log.e(TAG, "doWork failure")
+           Log.e(TAG, "doWork failure ${throwable.message}")
            Result.failure()
        }
     }
@@ -37,6 +39,7 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
         Log.i(TAG, url)
         Log.i(TAG, "doWork start working")
         //trustAllHosts()
+        trustCert()
         val url1 = URL(url)
         with(url1.openConnection() as HttpsURLConnection) {
             requestMethod = "GET"
@@ -47,7 +50,9 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
                 }
             }
         }
-        return s
+
+        return s.substring(0,2047)
+        //return s
     }
 
     private fun trustAllHosts() {
@@ -81,6 +86,22 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
         }
     }
 
-
-
+    fun trustCert() {
+        try {            //Accepts every hostname
+                    val hostnameVerifier = HostnameVerifier { hostname, _ ->
+                        Log.i("INTERNET hostName", hostname) //To be hardcoded/as needed
+                        true
+                    }
+                    val trustMgr:Array<TrustManager> = arrayOf(object : X509TrustManager {
+                        override fun checkClientTrusted(certs: Array<out X509Certificate>?, authType: String?) {}
+                        override fun checkServerTrusted(certs: Array<out X509Certificate>?, authType: String?) {}
+                        override fun getAcceptedIssuers(): Array<X509Certificate>? = null
+                    })
+            val sslSocketFactory = SSLContext.getInstance("TLS").also {
+                it.init(null, trustMgr, SecureRandom())
+            }.socketFactory
+        } catch (e: Exception) {
+            Log.i("INTERNET SSL", e.message.toString())
+        }
+    }
 }

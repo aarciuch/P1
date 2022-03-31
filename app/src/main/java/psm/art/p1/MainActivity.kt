@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Observer
 import androidx.work.*
 import androidx.work.Data.fromByteArray
+import androidx.work.WorkManager
 import java.lang.Exception
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -103,8 +104,10 @@ class MainActivity : AppCompatActivity() {
             .observe(this, Observer {
                 if (it != null && it.state.isFinished) {
                     s = it.outputData.getString("RESULT")!!
+                    Log.i("MAIN ACT",s)
                 }
             })
+
         return s
     }
 
