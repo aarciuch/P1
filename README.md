@@ -1,0 +1,2 @@
+Cykl życia
+Work Manager
