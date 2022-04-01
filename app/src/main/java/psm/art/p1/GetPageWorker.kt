@@ -38,8 +38,6 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
         var s = ""
         Log.i(TAG, url)
         Log.i(TAG, "doWork start working")
-        //trustAllHosts()
-        trustCert()
         val url1 = URL(url)
         with(url1.openConnection() as HttpsURLConnection) {
             requestMethod = "GET"
@@ -55,7 +53,7 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
         //return s
     }
 
-    private fun trustAllHosts() {
+   /* private fun trustAllHosts() {
         // Create a trust manager that does not validate certificate chains
         val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
             override fun getAcceptedIssuers(): Array<X509Certificate?>? {
@@ -84,24 +82,5 @@ class GetPageWorker(ctx: Context, workerParameters: WorkerParameters) :
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    fun trustCert() {
-        try {            //Accepts every hostname
-                    val hostnameVerifier = HostnameVerifier { hostname, _ ->
-                        Log.i("INTERNET hostName", hostname) //To be hardcoded/as needed
-                        true
-                    }
-                    val trustMgr:Array<TrustManager> = arrayOf(object : X509TrustManager {
-                        override fun checkClientTrusted(certs: Array<out X509Certificate>?, authType: String?) {}
-                        override fun checkServerTrusted(certs: Array<out X509Certificate>?, authType: String?) {}
-                        override fun getAcceptedIssuers(): Array<X509Certificate>? = null
-                    })
-            val sslSocketFactory = SSLContext.getInstance("TLS").also {
-                it.init(null, trustMgr, SecureRandom())
-            }.socketFactory
-        } catch (e: Exception) {
-            Log.i("INTERNET SSL", e.message.toString())
-        }
-    }
+    }*/
 }
