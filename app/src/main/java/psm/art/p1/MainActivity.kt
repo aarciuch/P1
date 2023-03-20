@@ -31,9 +31,11 @@ class MainActivity : AppCompatActivity() {
     var getResul1 = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
         if (it.resultCode == 111) {
+            var a = it.data?.getIntExtra("DATA1",0)
             Toast.makeText(applicationContext,
                             String.format("%d", it.data?.getIntExtra("DATA1",0)),
                             Toast.LENGTH_LONG).show()
+                            Log.i("PAR", "odebrano $a z Akt2 w Akt1 " )
         }
     }
 
@@ -152,12 +154,16 @@ class MainActivity : AppCompatActivity() {
     /***************************************************************/
     private fun go2Act2WithParams() {
         var intent1 = Intent(applicationContext, MainActivity2::class.java)
-        intent1.putExtra("DATA1",100)
+        var a = 500
+        intent1.putExtra("DATA1",a)
+        Log.i("PAR", "wysłano ${a} z Akt1  do Akt2")
         getResul1.launch(intent1)
     }
 
     private fun go2Act2() {
         startActivity(Intent(applicationContext, MainActivity2::class.java))
     }
+
+
 
 }

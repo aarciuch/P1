@@ -2,6 +2,7 @@ package psm.art.p1
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
 
@@ -22,6 +23,7 @@ class MainActivity2 : AppCompatActivity() {
         super.onResume()
         data1 = intent.getIntExtra("DATA1",0)
         et2.setText(String.format("%d", data1))
+        Log.i("PAR", "odebrano ${data1} w Akt2")
         data1 += 200;
         Toast.makeText(applicationContext,
             String.format("%d", data1),
@@ -31,6 +33,7 @@ class MainActivity2 : AppCompatActivity() {
 
     override fun onBackPressed() {
         intent.putExtra("DATA1", data1)
+        Log.i("PAR", "odesłano ${data1} z Akt2 do Akt1")
         setResult(111, intent)
         finish()
         super.onBackPressed()
