@@ -9,11 +9,20 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Observer
 import androidx.work.*
+import androidx.work.Data.fromByteArray
+import java.lang.Exception
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
-const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var et : EditText
@@ -31,11 +40,9 @@ class MainActivity : AppCompatActivity() {
     var getResul1 = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
         if (it.resultCode == 111) {
-            var a = it.data?.getIntExtra("DATA1",0)
             Toast.makeText(applicationContext,
                             String.format("%d", it.data?.getIntExtra("DATA1",0)),
                             Toast.LENGTH_LONG).show()
-                            Log.i("PAR", "odebrano $a z Akt2 w Akt1 " )
         }
     }
 
@@ -74,35 +81,31 @@ class MainActivity : AppCompatActivity() {
         /********************************************************/
         b3 = findViewById(R.id.b3)
         b3.setOnClickListener {
-            getPage()
+            page = getPage()
+            Log.i("ACTIVITY", page!!)
         }
 
 
     }
 
-    private fun getPage() {
-
-        if (et.text.toString() != "") {
-            val d1 = Data.Builder()
-            d1.putString("URL", et.text.toString())
-
-            val pageWorker: WorkRequest =
-                OneTimeWorkRequestBuilder<GetPageWorker>()
-                    .setInputData(d1.build())
-                    .build()
-            val workManager: WorkManager = WorkManager.getInstance(applicationContext)
+    private fun getPage(): String? {
+        val d1 = Data.Builder()
+        d1.putString("URL", "https://ktel.wat.edu.pl/")
+        var s = ""
+        val pageWorker:  WorkRequest =
+            OneTimeWorkRequestBuilder<GetPageWorker>()
+                .setInputData(d1.build())
+                .build()
+        val workManager: WorkManager = WorkManager.getInstance(applicationContext)
             workManager.enqueue(pageWorker)
 
-            workManager.getWorkInfoByIdLiveData(pageWorker.id)
-                .observe(this) { workInfo ->
-                    if (workInfo != null && workInfo.state.isFinished) {
-                       page = workInfo.outputData.getString("RESULT")!!
-                       page?.let { Log.i(TAG, it) }
-                    }
+        workManager.getWorkInfoByIdLiveData(pageWorker.id)
+            .observe(this, Observer {
+                if (it != null && it.state.isFinished) {
+                    s = it.outputData.getString("RESULT")!!
                 }
-        } else {
-            Toast.makeText(this, "Edit text is empty", Toast.LENGTH_LONG).show()
-        }
+            })
+        return s
     }
 
 
@@ -153,17 +156,13 @@ class MainActivity : AppCompatActivity() {
 
     /***************************************************************/
     private fun go2Act2WithParams() {
-        var intent1 = Intent(applicationContext, MainActivity2::class.java)
-        var a = 500
-        intent1.putExtra("DATA1",a)
-        Log.i("PAR", "wysłano ${a} z Akt1  do Akt2")
+        var intent1: Intent = Intent(applicationContext, MainActivity2::class.java)
+        intent1.putExtra("DATA1",100)
         getResul1.launch(intent1)
     }
 
     private fun go2Act2() {
         startActivity(Intent(applicationContext, MainActivity2::class.java))
     }
-
-
 
 }
