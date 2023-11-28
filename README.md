@@ -1,3 +1,3 @@
-<br>Cykl życia 
-<br>Work Manager
-<br>Przekazywanie parametrów między aktywnościami 
+# Cykl życia 
+# Work Manager
+# Przekazywanie parametrów między aktywnościami 
