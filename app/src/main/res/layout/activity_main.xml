@@ -37,4 +37,27 @@
         android:layout_height="wrap_content"
         android:text="Get page"/>
 
+    <Button
+        android:id="@+id/b4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to layout with Mvvm"/>
+
+
+
+    <TextView
+        android:id="@+id/tvLiczba"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:textSize="20sp"
+        android:textAlignment="center"
+        android:text="0"/>
+
+    <Button
+        android:id="@+id/bLiczba"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Licz"/>
+
 </LinearLayout>

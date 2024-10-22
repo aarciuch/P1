@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,6 +33,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var b1: Button
     private lateinit var b2: Button
     private lateinit var b3: Button
+    private lateinit var b4: Button
+    private lateinit var bLiczba: Button
+    private lateinit var tvLiczba :TextView
 
     private var page : String? = null
 
@@ -47,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private val LICZBA_STATE = "LICZBA_STATE"
         private val STATE = "STATE"
         private val ACTIVITY_LIFECYCLE_EVENT = "ACTIVITY_LIFECYCLE_EVENT"
         private val SHARE_PREF_1 = "SHARE_PREF_1"
@@ -58,6 +63,8 @@ class MainActivity : AppCompatActivity() {
 
         sharedPref = applicationContext?.getSharedPreferences(SHARE_PREF_1, Context.MODE_PRIVATE) ?: return
         state = savedInstanceState?.getString(STATE)
+
+
         if (savedInstanceState == null) {
             state = sharedPref!!.getString(STATE, "")
         }
@@ -85,12 +92,33 @@ class MainActivity : AppCompatActivity() {
             Log.i("ACTIVITY", page!!)
         }
 
+        b4 = findViewById(R.id.b4)
+        b4.setOnClickListener {
+            startActivity(Intent(applicationContext, ForMvvm::class.java))
+        }
+
+        tvLiczba = findViewById(R.id.tvLiczba)
+        if (savedInstanceState == null) {
+            tvLiczba.text = (sharedPref!!.getString(LICZBA_STATE,"0"))
+        } else {
+            tvLiczba.text = savedInstanceState?.getString(LICZBA_STATE,"0")
+        }
+
+
+
+        bLiczba = findViewById(R.id.bLiczba)
+        bLiczba.setOnClickListener {
+            var a : Int = tvLiczba.text.toString().toInt()
+            a++
+            tvLiczba.text = a.toString()
+        }
+
 
     }
 
     private fun getPage(): String? {
         val d1 = Data.Builder()
-        d1.putString("URL", "https://ktel.wat.edu.pl/")
+        d1.putString("URL", "https://www.wp.pl")
         var s = ""
         val pageWorker:  WorkRequest =
             OneTimeWorkRequestBuilder<GetPageWorker>()
@@ -129,8 +157,10 @@ class MainActivity : AppCompatActivity() {
         with(sharedPref?.edit() ?: return) {
             state = et.text.toString()
             putString(STATE, state)
+            putString(LICZBA_STATE, tvLiczba.text.toString())
             apply()
         }
+
         super.onStop()
     }
 
@@ -142,6 +172,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         Log.i(ACTIVITY_LIFECYCLE_EVENT, "onRestoreInstanceState")
         state = savedInstanceState.getString(STATE).toString()
+        tvLiczba.text = savedInstanceState.getString(LICZBA_STATE).toString()
         et.setText(state)
     }
 
@@ -150,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         state = et.text.toString()
         outState.run {
             putString(STATE, state)
+            putString(LICZBA_STATE, tvLiczba.text.toString())
         }
         super.onSaveInstanceState(outState)
     }
